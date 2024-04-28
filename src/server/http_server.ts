@@ -9,7 +9,7 @@ import cookieParser from "cookie-parser";
 import ApiRoutes from "../routes";
 import { config } from "../configs";
 import { errorHandler } from "../middleware";
-import { AppError, ITokenPayload } from "../types";
+import { AppError, ITokenPayload } from "../interface";
 
 declare global {
   namespace Express {

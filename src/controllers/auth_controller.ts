@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 
 import { User } from "../models";
 import { config } from "../configs";
-import { ITokenPayload, AppError } from "../types";
+import { ITokenPayload, AppError } from "../interface";
 
 const createAccessToken = (data: ITokenPayload) => {
   return jwt.sign(data, config.ACCESS_TOKEN_SECRET, {

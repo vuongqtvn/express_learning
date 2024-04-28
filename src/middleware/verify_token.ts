@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 
 import { config } from "../configs";
 import { User } from "../models";
-import { AppError, ITokenPayload } from "../types";
+import { AppError, ITokenPayload } from "../interface";
 
 
 export const verifyToken = async (

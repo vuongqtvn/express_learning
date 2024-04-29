@@ -21,18 +21,54 @@ const createRefreshToken = (data: ITokenPayload) => {
 export const authController = {
   register: async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const { username, email, password } = req.body;
+
+      if (!username) {
+        throw new AppError(
+          {
+            username: "Username is required",
+          },
+          400
+        );
+      }
+
+      if (!email) {
+        throw new AppError(
+          {
+            email: "Email is required",
+          },
+          400
+        );
+      }
+
+      if (!password) {
+        throw new AppError(
+          {
+            password: "Password is required",
+          },
+          400
+        );
+      }
+
+      const isExist = await User.findOne({ email: req.body.email });
+      if (isExist) {
+        throw new AppError(
+          {
+            email: "Email is exist",
+          },
+          400
+        );
+      }
+
       const user = await User.create(req.body);
       const accessToken = createAccessToken({ _id: user._id });
       const refreshToken = createRefreshToken({ _id: user._id });
 
       user.password = "";
       res.status(200).json({
-        status: "success",
-        data: {
-          user,
-          refreshToken,
-          accessToken,
-        },
+        user,
+        refreshToken,
+        accessToken,
       });
     } catch (error) {
       next(error);
@@ -42,13 +78,23 @@ export const authController = {
     try {
       const user = await User.findOne({ email: req.body.email });
       if (!user) {
-        const error = new AppError("Email is not correct", 400);
-        return next(error);
+        throw new AppError(
+          {
+            email: "Email or password is not correct",
+            password: "Email or password is not correct",
+          },
+          400
+        );
       }
 
       if (!bcrypt.compareSync(req.body.password, user.password)) {
-        const error = new AppError("Password is not correct", 400);
-        return next(error);
+        throw new AppError(
+          {
+            email: "Email or password is not correct",
+            password: "Email or password is not correct",
+          },
+          400
+        );
       }
 
       const accessToken = createAccessToken({ _id: user._id });
@@ -57,12 +103,9 @@ export const authController = {
       user.password = "";
 
       res.status(200).json({
-        status: "success",
-        data: {
-          accessToken,
-          refreshToken,
-          user,
-        },
+        accessToken,
+        refreshToken,
+        user,
       });
     } catch (error) {
       next(error);
@@ -70,11 +113,10 @@ export const authController = {
   },
   refreshToken: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { refreshToken } = req.body
+      const { refreshToken } = req.body;
 
       if (!refreshToken) {
-        const error = new AppError("refresh token does not exits", 400);
-        return next(error);
+        throw new AppError("refresh token does not exits", 400);
       }
 
       const payloadToken = jwt.verify(
@@ -85,18 +127,14 @@ export const authController = {
       const user = await User.findById(payloadToken._id).select("-password");
 
       if (!user) {
-        const error = new AppError("User does not exist.", 404);
-        return next(error);
+        throw new AppError("User does not exist.", 404);
       }
 
       const accessToken = createAccessToken({ _id: user._id });
 
       res.status(200).json({
-        status: "success",
-        data: {
-          accessToken,
-          user,
-        },
+        accessToken,
+        user,
       });
     } catch (error) {
       next(error);
@@ -107,8 +145,7 @@ export const authController = {
       const Authorization = req.header("authorization");
 
       if (!Authorization) {
-        const error = new AppError("Unauthorized", 401);
-        return next(error);
+        throw new AppError("Unauthorized", 401);
       }
 
       const token = Authorization.replace("Bearer ", "");
@@ -121,15 +158,11 @@ export const authController = {
       const user = await User.findById(payloadToken._id).select("-password");
 
       if (!user) {
-        const error = new AppError("User does not exist.", 404);
-        return next(error);
+        throw new AppError("Unauthorized", 401);
       }
 
       res.status(200).json({
-        status: "success",
-        data: {
-          user,
-        },
+        user,
       });
     } catch (error) {
       next(error);

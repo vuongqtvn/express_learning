@@ -4,16 +4,10 @@ import { IUser } from "../interface";
 
 const userSchema = new mongoose.Schema<IUser>(
   {
-    fullName: {
-      type: String,
-      required: [true, "Full name must be required"],
-    },
     username: {
       type: String,
       required: [true, "User name must be required"],
-      unique: true,
       trim: true,
-      lowercase: true,
     },
     email: {
       type: String,
@@ -26,10 +20,6 @@ const userSchema = new mongoose.Schema<IUser>(
       required: [true, "Password must be required"],
       minLength: [6, "Password must be at least 6 characters"],
       trim: true,
-    },
-    gender: {
-      type: String,
-      default: "male",
     },
   },
   {

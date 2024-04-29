@@ -5,7 +5,6 @@ import { config } from "../configs";
 import { User } from "../models";
 import { AppError, ITokenPayload } from "../interface";
 
-
 export const verifyToken = async (
   req: Request,
   res: Response,
@@ -26,16 +25,14 @@ export const verifyToken = async (
       config.ACCESS_TOKEN_SECRET
     ) as ITokenPayload;
 
-    const user = await User.findById(payloadToken._id).select(
-      "_id"
-    );
+    const user = await User.findById(payloadToken._id).select("_id");
 
     if (!user) {
-      const error = new AppError("User is not exist", 400);
+      const error = new AppError("Unauthorized", 401);
       return next(error);
     }
 
-    req.user = user
+    req.user = user;
 
     next();
   } catch (error) {
